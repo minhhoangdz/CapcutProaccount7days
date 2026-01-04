@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Email - Không Trùng</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+        #email-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <h2>Hệ thống lấy Email ngẫu nhiên</h2>
+    
+    <div id="email-display">Chưa có email nào được chọn</div>
+    <button id="btn-get" onclick="getRandomEmail()">Lấy Email</button>
+    <p id="status-msg" style="color: gray; font-size: 14px;"></p>
+
+    <script>
+        // 1. Danh sách Email gốc của bạn (thêm bao nhiêu tùy ý)
+        const originalEmails = [
+            "user01@example.com",
+            "khachhang.a@gmail.com",
+            "lienhe@congty.vn",
+            "support@domain.net",
+            "admin@website.org"
+        ];
+
+        // 2. Tạo một bản sao để thao tác (để không làm hỏng danh sách gốc)
+        let availableEmails = [...originalEmails];
+
+        function getRandomEmail() {
+            const display = document.getElementById('email-display');
+            const status = document.getElementById('status-msg');
+            const btn = document.getElementById('btn-get');
+
+            // Kiểm tra xem còn email trong kho không
+            if (availableEmails.length === 0) {
+                display.innerText = "Đã hết email!";
+                display.style.color = "red";
+                
+                // Tùy chọn: Tự động nạp lại danh sách để quay tiếp
+                // availableEmails = [...originalEmails]; 
+                // status.innerText = "Danh sách đã được làm mới.";
+                
+                // Hoặc: Khóa nút bấm
+                btn.disabled = true;
+                return;
+            }
+
+            // 3. Chọn ngẫu nhiên một vị trí (index) trong danh sách hiện có
+            const randomIndex = Math.floor(Math.random() * availableEmails.length);
+
+            // 4. Lấy email đó ra
+            const selectedEmail = availableEmails[randomIndex];
+
+            // 5. Hiển thị email
+            display.innerText = selectedEmail;
+            display.style.color = "#333";
+
+            // 6. XÓA email đó khỏi danh sách availableEmails (để lần sau không trùng)
+            availableEmails.splice(randomIndex, 1);
+
+            // Cập nhật trạng thái
+            status.innerText = `Còn lại ${availableEmails.length} email chưa hiển thị.`;
+        }
+    </script>
+
+</body>
+</html>
