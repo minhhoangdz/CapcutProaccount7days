@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Chọn Ngẫu Nhiên</title>
+    <style>
+        /* CSS: Phần trang trí giao diện */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 20px; font-size: 24px; }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            box-sizing: border-box; /* Giúp padding không làm vỡ layout */
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover { background-color: #0056b3; }
+        .btn.secondary { background-color: #6c757d; }
+        .btn.secondary:hover { background-color: #5a6268; }
+
+        /* Màn hình kết quả */
+        #game-area { display: none; /* Ẩn lúc đầu */ }
+
+        .result-box {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d63384;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            background: #fff0f6;
+        }
+
+        .count-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Hiệu ứng hiện chữ */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="setup-area">
+            <h1>📥 Nhập danh sách Email</h1>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Mỗi email một dòng. Hệ thống sẽ tự lọc bỏ dòng trống.</p>
+            <textarea id="input-list" placeholder="nguyenvana@gmail.com&#10;tranvanb@yahoo.com&#10;user123@company.vn"></textarea>
+            <br>
+            <button class="btn" onclick="startGame()">Bắt đầu quay</button>
+        </div>
+
+        <div id="game-area">
+            <h1>🎉 Kết quả ngẫu nhiên</h1>
+            
+            <div id="result-display" class="result-box">...</div>
+            
+            <p class="count-info">Còn lại: <span id="remain-count">0</span> email</p>
+
+            <button class="btn" id="btn-pick" onclick="pickRandom()">Lấy Email ngay</button>
+            <button class="btn secondary" onclick="resetGame()">Nhập lại danh sách</button>
+        </div>
+    </div>
+
+    <script>
+        let dataList = [];
+
+        // Hàm 1: Chuyển từ màn hình nhập sang màn hình quay
+        function startGame() {
+            const input = document.getElementById('input-list').value;
+            
+            // Cắt chuỗi thành mảng dựa trên xuống dòng, và lọc bỏ dòng trống
+            dataList = input.split('\n').map(item => item.trim()).filter(item => item !== "");
+
+            if (dataList.length === 0) {
+                alert("Bạn chưa nhập email nào cả!");
+                return;
+            }
+
+            // Chuyển đổi giao diện
+            document.getElementById('setup-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            // Cập nhật số lượng
+            updateCount();
+            document.getElementById('result-display').innerText = "Sẵn sàng...";
+            document.getElementById('btn-pick').disabled = false;
+        }
+
+        // Hàm 2: Quay ngẫu nhiên
+        function pickRandom() {
+            const display = document.getElementById('result-display');
+            const btn = document.getElementById('btn-pick');
+
+            if (dataList.length === 0) {
+                display.innerText = "HẾT DANH SÁCH!";
+                display.style.color = "red";
+                btn.disabled = true;
+                return;
+            }
+
+            // Chọn số ngẫu nhiên
+            const randomIndex = Math.floor(Math.random() * dataList.length);
+            const selectedItem = dataList[randomIndex];
+
+            // Hiển thị kết quả với hiệu ứng
+            display.innerText = selectedItem;
+            display.style.color = "#d63384";
+            
+            // Thêm class animation để chữ hiện ra đẹp hơn (reset animation mỗi lần bấm)
+            display.classList.remove('fade-in');
+            void display.offsetWidth; // Hack để trigger lại animation
+            display.classList.add('fade-in');
+
+            // Xóa khỏi danh sách để không trùng
+            dataList.splice(randomIndex, 1);
+
+            updateCount();
+        }
+
+        // Hàm 3: Cập nhật số lượng còn lại
+        function updateCount() {
+            document.getElementById('remain-count').innerText = dataList.length;
+        }
+
+        // Hàm 4: Quay về màn hình nhập liệu
+        function resetGame() {
+            if(confirm("Bạn có chắc muốn quay lại nhập danh sách mới không?")) {
+                document.getElementById('game-area').style.display = 'none';
+                document.getElementById('setup-area').style.display = 'block';
+                document.getElementById('result-display').innerText = "...";
+            }
+        }
+    </script>
+</body>
+</html>
